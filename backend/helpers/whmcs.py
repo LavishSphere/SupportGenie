@@ -65,3 +65,16 @@ def get_ticket(ticket_id: int) -> dict:
     return _post("GetTicket", {
         "ticketid": ticket_id,
     })
+
+
+def add_ticket_reply(ticket_id: int, message: str, admin_username: str) -> dict:
+    """Post an admin reply to a ticket.
+
+    Requires the API role to have AddTicketReply permission. Posts under
+    the given admin username — must match an existing WHMCS admin.
+    """
+    return _post("AddTicketReply", {
+        "ticketid": ticket_id,
+        "message": message,
+        "adminusername": admin_username,
+    })

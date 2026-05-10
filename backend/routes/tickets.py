@@ -5,6 +5,7 @@ Admin sees all tickets across the WHMCS instance.
 
 from flask import Blueprint, jsonify, request
 
+import config
 from helpers import jwt_auth, whmcs
 
 bp = Blueprint("tickets", __name__)
@@ -56,3 +57,31 @@ def get_ticket(ticket_id):
         return jsonify({"error": "ticket not found"}), 404
 
     return jsonify({"ticket": result})
+
+
+@bp.route("/tickets/<int:ticket_id>/reply", methods=["POST"])
+@jwt_auth.require_auth
+def reply_to_ticket(ticket_id):
+    """Post an admin reply to a ticket. Body: {"message": "..."}."""
+    if not config.WHMCS_ADMIN_USERNAME:
+        return jsonify({"error": "WHMCS_ADMIN_USERNAME not configured"}), 500
+
+    data = request.get_json(silent=True) or {}
+    message = (data.get("message") or "").strip()
+
+    if not message:
+        return jsonify({"error": "missing message"}), 400
+
+    try:
+        result = whmcs.add_ticket_reply(
+            ticket_id,
+            message=message,
+            admin_username=config.WHMCS_ADMIN_USERNAME,
+        )
+    except whmcs.WHMCSError:
+        return jsonify({"error": "could not post reply"}), 502
+
+    if result.get("result") != "success":
+        return jsonify({"error": result.get("message") or "post failed"}), 400
+
+    return jsonify({"success": True})

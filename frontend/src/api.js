@@ -54,6 +54,9 @@ export const api = {
   summarizeTicket: (id) => request(`/tickets/${id}/summary`),
 
   suggestReply: (id) => request(`/tickets/${id}/suggest-reply`),
+
+  postReply: (id, message) =>
+    request(`/tickets/${id}/reply`, { method: "POST", body: { message } }),
 };
 
 export { ApiError };
