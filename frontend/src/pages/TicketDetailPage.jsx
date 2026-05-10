@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { api } from "../api";
+import { decodeHtml } from "../utils";
 
 function ConversationItem({ author, message, date }) {
   return (
@@ -9,7 +10,7 @@ function ConversationItem({ author, message, date }) {
         <span className="font-medium text-slate-700">{author}</span>
         {date && <span>{date}</span>}
       </div>
-      <div className="text-sm text-slate-800 whitespace-pre-wrap">{message}</div>
+      <div className="text-sm text-slate-800 whitespace-pre-wrap">{decodeHtml(message)}</div>
     </div>
   );
 }
@@ -218,7 +219,7 @@ export default function TicketDetailPage() {
         <div className="text-xs text-slate-500 mb-1">
           #{ticket.tid} · {ticket.deptname || ticket.department} · {ticket.status}
         </div>
-        <h1 className="text-xl font-semibold text-slate-900">{ticket.subject}</h1>
+        <h1 className="text-xl font-semibold text-slate-900">{decodeHtml(ticket.subject)}</h1>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-4">
@@ -230,14 +231,14 @@ export default function TicketDetailPage() {
         <h2 className="text-sm font-medium text-slate-700 mb-3">Conversation</h2>
         <div className="space-y-3">
           <ConversationItem
-            author={ticket.name || "Customer"}
+            author={decodeHtml(ticket.name) || "Customer"}
             message={ticket.message}
             date={ticket.date}
           />
           {replies.map((r, idx) => (
             <ConversationItem
               key={idx}
-              author={r.admin || r.name || "User"}
+              author={decodeHtml(r.admin || r.name) || "User"}
               message={r.message}
               date={r.date}
             />

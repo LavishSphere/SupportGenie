@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { decodeHtml } from "../utils";
 
 const STATUS_STYLES = {
   Open: "bg-emerald-100 text-emerald-800",
@@ -22,7 +23,7 @@ export default function TicketCard({ ticket }) {
             #{ticket.tid} · {ticket.department}
           </div>
           <div className="font-medium text-slate-900 truncate">
-            {ticket.subject || "(no subject)"}
+            {decodeHtml(ticket.subject) || "(no subject)"}
           </div>
           <div className="text-xs text-slate-500 mt-2">
             Last reply: {ticket.lastreply || "—"}
