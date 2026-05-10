@@ -6,8 +6,9 @@ AI-powered support assistant for WHMCS hosting providers. Pulls tickets from WHM
 
 - WHMCS integration — fetches tickets directly via the admin API
 - AI summaries — Gemini 2.5 Flash distills a ticket thread into 3-5 bullet points
-- AI-suggested replies — drafts a professional support reply, ready to copy
+- AI-suggested replies — drafts a professional reply, edit inline, post straight to WHMCS in one click
 - JWT-authenticated admin login; WHMCS and Gemini credentials never leave the backend
+- Auto-deploys on push to `main` via GitHub Actions
 
 ## Stack
 
@@ -65,6 +66,7 @@ GEMINI_API_KEY=<from aistudio.google.com>
 WHMCS_IDENTIFIER=<WHMCS admin → API Credentials>
 WHMCS_SECRET=<WHMCS admin → API Credentials>
 WHMCS_URL=https://yourwhmcs.tld/includes/api.php
+WHMCS_ADMIN_USERNAME=<your WHMCS admin login username, used when posting replies>
 DEMO_ADMIN_EMAIL=admin@yourdomain.tld
 DEMO_ADMIN_PASSWORD=<pick anything>
 ```
@@ -74,7 +76,7 @@ DEMO_ADMIN_PASSWORD=<pick anything>
 The backend needs admin API access. In WHMCS admin:
 
 1. **System Settings → API Credentials** — generate identifier + secret
-2. **System Settings → API Roles** — ensure the role has at minimum `GetTickets` and `GetTicket` ticked
+2. **System Settings → API Roles** — ensure the role has `GetTickets`, `GetTicket`, and `AddTicketReply` ticked
 3. **System Settings → General Settings → Security tab → API IP Access Restriction** — add your backend server's public IP
 
 Gotcha: WHMCS expects the API auth fields to be named `username` (containing the identifier) and `password` (containing the secret). Not `identifier`/`secret`. The official docs say so but many examples online get it wrong.
@@ -89,17 +91,15 @@ Gotcha: WHMCS expects the API auth fields to be named `username` (containing the
 | GET | `/tickets/<id>` | JWT | Full ticket with replies |
 | GET | `/tickets/<id>/summary` | JWT | Gemini bullet-point summary |
 | GET | `/tickets/<id>/suggest-reply` | JWT | Gemini-drafted reply |
+| POST | `/tickets/<id>/reply` | JWT | Posts an admin reply to WHMCS |
 
 ## Deployment
 
 ### Frontend → GitHub Pages
 
-```bash
-cd frontend
-npm run deploy            # builds and pushes dist/ to gh-pages
-```
+Auto-deploys on every push to `main` via [.github/workflows/deploy-frontend.yml](.github/workflows/deploy-frontend.yml). The workflow only fires when files under `frontend/` change.
 
-`public/CNAME` keeps `tickets.uniplex.xyz` bound across redeploys. Set the custom domain and enforce HTTPS in repo Settings → Pages.
+One-time setup: in repo Settings → Pages, set Source to **GitHub Actions** and add `tickets.uniplex.xyz` as the custom domain. `public/CNAME` keeps the domain bound through every redeploy.
 
 ### Backend → VPS
 
