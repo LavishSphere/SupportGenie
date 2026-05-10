@@ -77,6 +77,7 @@ def reply_to_ticket(ticket_id):
             ticket_id,
             message=message,
             admin_username=config.WHMCS_ADMIN_USERNAME,
+            name=config.WHMCS_ADMIN_NAME,
         )
     except whmcs.WHMCSError:
         return jsonify({"error": "could not post reply"}), 502

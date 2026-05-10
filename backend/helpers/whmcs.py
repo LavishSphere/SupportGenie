@@ -67,14 +67,23 @@ def get_ticket(ticket_id: int) -> dict:
     })
 
 
-def add_ticket_reply(ticket_id: int, message: str, admin_username: str) -> dict:
+def add_ticket_reply(
+    ticket_id: int,
+    message: str,
+    admin_username: str,
+    name: str | None = None,
+) -> dict:
     """Post an admin reply to a ticket.
 
     Requires the API role to have AddTicketReply permission. Posts under
-    the given admin username — must match an existing WHMCS admin.
+    the given admin username — must match an existing WHMCS admin. The
+    optional `name` overrides the display name shown on the reply.
     """
-    return _post("AddTicketReply", {
+    payload = {
         "ticketid": ticket_id,
         "message": message,
         "adminusername": admin_username,
-    })
+    }
+    if name:
+        payload["name"] = name
+    return _post("AddTicketReply", payload)
